@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { transpile }  from 'typescript';
+import * as ts from 'typescript';
 import { replaceMultipleStrings } from './functions/replace-multiple-strings';
 
 @Component({
@@ -60,7 +60,7 @@ export class AppComponent implements AfterViewInit {
       logToConsoleScriptElement.innerHTML = logToConsole as string;// sanitizedCode['changingThisBreaksApplicationSecurity']
       
       const scriptElement = iframeDocument.createElement('script');
-      const transpiledCode = transpile(this.code);
+      const transpiledCode = ts.transpile(this.code);
 
       const consoledCode = replaceMultipleStrings(transpiledCode,[
         ["console.log","logToConsole"]
