@@ -1,0 +1,23 @@
+<h1>{{ title }}</h1>
+
+<main class="main">
+  <div class="content">
+    <div class="left-side">
+      <h2 style="width: 350px"> Editor </h2>
+      <div style="height: 300px">
+        <ngx-monaco-editor style="height: 100%"  [options]="editorOptions" [(ngModel)]="code"></ngx-monaco-editor>
+      </div>
+    </div>
+    <div class="divider" role="separator" aria-label="Divider"></div>
+    <div class="right-side">
+      
+      <div>
+        <h4>Consola:</h4>
+        <iframe #iframe style="width: 350px; height: 300px;"></iframe>
+      </div>
+
+    </div>
+  </div>
+</main>
+<button (click)="setupConsole()">Ejecutar Código</button>
+<router-outlet></router-outlet>
