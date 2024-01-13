@@ -1,84 +1,40 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import * as ts from 'typescript';
-import { replaceMultipleStrings } from './functions/replace-multiple-strings';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit {
 
-  title = 'code-editor';
+  title = 'Mini code editor';
 
   editorOptions = {
     theme: 'vs-dark',
-    language: 'typescript'
+    language: 'typescript',
   };
 
   code:any = `function x() {\n  console.log("Epale vale!");\n}\nx();`
 
-  @ViewChild('iframe', { static: false }) iframe: ElementRef | undefined;
+  editorForm: FormGroup;
 
   constructor(
-    private sanitizer: DomSanitizer,
+    private formBuilder: FormBuilder,
   ) {}
 
-  ngAfterViewInit() {
-    this.setupConsole();
+  ngOnInit(): void {
+    this.editorForm = this.formBuilder.group({
+      editorControl: this.formBuilder.control(this.code),
+      consoleControl: this.formBuilder.control(this.code)
+    });
+
+    this.editorForm.get('editorControl')?.valueChanges.pipe(debounceTime(1000)).subscribe( (code) => {
+      this.editorForm.get('consoleControl')?.patchValue(code);
+    });
+
   }
 
-
-  clearIframeContent() {
-    if (this.iframe && this.iframe.nativeElement.contentDocument) {
-      const iframeDocument = this.iframe.nativeElement.contentDocument;
-      iframeDocument.body.innerHTML = '';
-    }
-  }
-
-  setupConsole(){
-
-    this.clearIframeContent();
-
-    if (this.iframe) {
-      
-      const logToConsole = `
-        function logToConsole(message) {
-          let consoleArea = document.getElementById('console');
-          const newLine = document.createElement('div');
-          newLine.textContent = message;
-          consoleArea.appendChild(newLine);
-        }
-      `;
-    
-      const sanitizedCode: SafeHtml | any = this.sanitizer.bypassSecurityTrustHtml(logToConsole);
-      
-      const iframeDocument = this.iframe.nativeElement.contentDocument;
-      
-      const logToConsoleScriptElement = iframeDocument.createElement('script');
-      logToConsoleScriptElement.innerHTML = logToConsole as string;// sanitizedCode['changingThisBreaksApplicationSecurity']
-      
-      const scriptElement = iframeDocument.createElement('script');
-      const transpiledCode = ts.transpile(this.code);
-
-      const consoledCode = replaceMultipleStrings(transpiledCode,[
-        ["console.log","logToConsole"]
-      ])
-
-      scriptElement.innerHTML = consoledCode as string; // sanitizedCode['changingThisBreaksApplicationSecurity']
-
-      const consoleArea = iframeDocument.createElement('div');
-      consoleArea.id = 'console';
-      iframeDocument.body.appendChild(consoleArea);
-      iframeDocument.body.appendChild(logToConsoleScriptElement);
-      iframeDocument.body.appendChild(scriptElement);
-    }
-  }
-
-  // Función para reiniciar el iframe e insertar nuevo código
-  public reiniciarIframe() {
-    this.setupConsole();
-  }
 }
 
