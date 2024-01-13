@@ -1,9 +1,10 @@
-// Ejemplo de variables de colores
 $background-color: #292828;
 $text-color: #d4d4d4;
 
-// Aplicando los estilos
-body {
+iframe {
   background-color: $background-color;
   color: $text-color;
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: auto;
 }
