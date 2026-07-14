@@ -1,9 +1,108 @@
-// Ejemplo de variables de colores
-$background-color: #292828;
-$text-color: #d4d4d4;
+// ========== CSS Variables per Theme ==========
 
-// Aplicando los estilos
+:root {
+  --bg-primary: #292828;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #d4d4d4;
+  --text-secondary: #888;
+  --accent: #00D4FF;
+  --border: #333;
+  --toolbar-bg: #2d2d2d;
+}
+
+// Light Standard
+[data-theme="light-standard"] {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --accent: #007ACC;
+  --border: #E0E0E0;
+  --toolbar-bg: #F0F0F0;
+}
+
+// Light Cloud
+[data-theme="light-cloud"] {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --accent: #7C3AED;
+  --border: #E2E8F0;
+  --toolbar-bg: #F1F5F9;
+}
+
+// Dark Retro Console
+[data-theme="dark-retroconsole"] {
+  --bg-primary: #0A0F0A;
+  --bg-secondary: #0D1A0D;
+  --text-primary: #33FF33;
+  --text-secondary: #1A6B1A;
+  --accent: #33FF33;
+  --border: #1A331A;
+  --toolbar-bg: #0D1A0D;
+}
+
+// Dark Neon Blue
+[data-theme="dark-neonblue"] {
+  --bg-primary: #0B1120;
+  --bg-secondary: #0F1A2E;
+  --text-primary: #E2E8F0;
+  --text-secondary: #64748B;
+  --accent: #00D4FF;
+  --border: #1E3A5F;
+  --toolbar-bg: #0F1A2E;
+}
+
+// Dark Obsidian
+[data-theme="dark-obsidian"] {
+  --bg-primary: #18181B;
+  --bg-secondary: #27272A;
+  --text-primary: #FAFAFA;
+  --text-secondary: #71717A;
+  --accent: #F472B6;
+  --border: #3F3F46;
+  --toolbar-bg: #27272A;
+}
+
+// ========== Global Styles ==========
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
 body {
-  background-color: $background-color;
-  color: $text-color;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--text-secondary);
+  }
 }

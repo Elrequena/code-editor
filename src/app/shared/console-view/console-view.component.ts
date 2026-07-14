@@ -1,10 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild, forwardRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, forwardRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { replaceMultipleStrings } from '../../functions/replace-multiple-strings';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import * as ts from 'typescript';
+import { ConsoleEntry, ConsoleMethod, SerializedArg } from '../models/console-entry.model';
+import { ConsoleSerializerService } from '../services/console-serializer.service';
 
 @Component({
+  standalone: false,
   selector: 'app-console-view',
   templateUrl: './console-view.component.html',
   styleUrl: './console-view.component.scss',
@@ -16,112 +17,85 @@ import * as ts from 'typescript';
     }
   ]
 })
-export class ConsoleViewComponent implements OnInit, ControlValueAccessor {
-  
-    @ViewChild('iframe', { static: false }) iframe: ElementRef | undefined;
-  
-  code: any = "";
-  
-  isDisabled: boolean;
-  
-  onChange = (_:any) => { };
+export class ConsoleViewComponent implements OnInit, OnDestroy, ControlValueAccessor {
 
-  onTouch = () => { };
-  
+  private serializer = inject(ConsoleSerializerService);
+
+  entries = signal<ConsoleEntry[]>([]);
+  private nextId = 1;
+  private code = '';
+  private worker: Worker | null = null;
+  private onChange = (_: any) => {};
+
   writeValue(value: any): void {
-    if (value) {
-      this.code = value || '';
-      this.setupConsole();
-    } else {
-      this.code = '';
+    if (value !== undefined && value !== null) {
+      this.code = value;
+      this.runCode();
     }
   }
-  
+
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
-  
-  registerOnTouched(fn: any): void {
-    this.onTouch = fn;
-  }
-  
-  setDisabledState(isDisabled: boolean): void {
-    this.isDisabled = isDisabled;
-  }
+
+  registerOnTouched(): void {}
+
+  setDisabledState(): void {}
 
   ngOnInit(): void {
-    
+    this.worker = new Worker(
+      new URL('./code-executor.worker', import.meta.url),
+      { type: 'module' }
+    );
+
+    this.worker.onmessage = (e: MessageEvent) => {
+      if (e.data?.type === 'console-output') {
+        this.handleConsoleOutput(e.data.method, e.data.args);
+      }
+    };
   }
 
-  constructor(
-    private sanitizer: DomSanitizer,
-  ) {}
-
-  ngAfterViewInit() {
-    this.setupConsole();
+  ngOnDestroy(): void {
+    this.worker?.terminate();
+    this.worker = null;
   }
 
-  clearIframeContent() {
-    if (this.iframe && this.iframe.nativeElement.contentDocument) {
-      const iframeDocument = this.iframe.nativeElement.contentDocument;
-      iframeDocument.body.innerHTML = '';
+  clearConsole(): void {
+    this.entries.set([]);
+  }
+
+  private handleConsoleOutput(method: ConsoleMethod, args: SerializedArg[]): void {
+    const entry: ConsoleEntry = {
+      id: this.nextId++,
+      method,
+      args,
+      timestamp: Date.now(),
+      formattedValue: this.serializer.format(method, args)
+    };
+
+    if (method === 'clear') {
+      this.entries.set([]);
+    } else {
+      this.entries.update(current => [...current, entry]);
     }
   }
 
-  setupConsole(){
+  private runCode(): void {
+    if (!this.worker) return;
 
-    this.clearIframeContent();
+    this.entries.set([]);
 
-    if (this.iframe) {
-      
-      const logToConsole = `
-        function logToConsole(message) {
-          let consoleArea = document.getElementById('console');
-          const newLine = document.createElement('div');
-          newLine.textContent = message;
-          consoleArea.appendChild(newLine);
-        }
-      `;
-
-      const styles = `
-        div{
-          font-family: Consolas, "Courier New", monospace;
-          font-weight: normal;
-          font-size: 14px;
-          font-feature-settings: "liga" 0, "calt" 0;
-          font-variation-settings: normal;
-          line-height: 19px;
-          letter-spacing: 0px;
-          color:#d4d4d4
-        }
-      `
-
-      const sanitizedCode: SafeHtml | any = this.sanitizer.bypassSecurityTrustHtml(logToConsole);
-      
-      const iframeDocument = this.iframe.nativeElement.contentDocument;
-
-      const styleElement = iframeDocument.createElement('style');
-      styleElement.textContent = styles;
-      
-      const logToConsoleScriptElement = iframeDocument.createElement('script');
-      logToConsoleScriptElement.innerHTML = logToConsole as string;// sanitizedCode['changingThisBreaksApplicationSecurity']
-      
-      const scriptElement = iframeDocument.createElement('script');
-      const transpiledCode = ts.transpile(this.code);
-
-      const consoledCode = replaceMultipleStrings(transpiledCode,[
-        ["console.log","logToConsole"]
-      ])
-
-      scriptElement.innerHTML = consoledCode as string; // sanitizedCode['changingThisBreaksApplicationSecurity']
-
-      const consoleArea = iframeDocument.createElement('div');
-      consoleArea.id = 'console';
-      iframeDocument.head.appendChild(styleElement);
-      iframeDocument.body.appendChild(consoleArea);
-      iframeDocument.body.appendChild(logToConsoleScriptElement);
-      iframeDocument.body.appendChild(scriptElement);
+    let transpiledCode: string;
+    try {
+      transpiledCode = ts.transpile(this.code, {
+        target: ts.ScriptTarget.ES2020,
+        module: ts.ModuleKind.None,
+      });
+    } catch (e: any) {
+      this.handleConsoleOutput('error', [{ type: 'error', value: { message: e.message, name: e.name || 'Error', stack: '' } }]);
+      return;
     }
-  }
 
+    this.worker.postMessage({ type: 'execute', code: transpiledCode });
+  }
 }

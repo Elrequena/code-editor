@@ -1,1 +1,27 @@
-<iframe #iframe></iframe>
+<div class="console-container">
+  <div class="console-output">
+    @for (entry of entries(); track entry.id) {
+      <div class="console-entry console-entry--{{ entry.method }}">
+        @if (entry.method !== 'log') {
+          <span class="console-badge console-badge--{{ entry.method }}">{{ entry.method }}</span>
+        }
+        @if (entry.method === 'table') {
+          <pre class="console-table">{{ entry.formattedValue }}</pre>
+        } @else if (entry.method === 'error') {
+          <span class="console-value console-error-message">{{ entry.args[0]?.value?.message }}</span>
+          @if (entry.args[0]?.value?.stack) {
+            <span class="console-stack">{{ entry.args[0].value.stack }}</span>
+          }
+        } @else {
+          <span class="console-value">{{ entry.formattedValue }}</span>
+        }
+      </div>
+    }
+    @if (entries().length === 0) {
+      <div class="console-empty">
+        <span class="console-empty-icon"><i class="fa-solid fa-terminal"></i></span>
+        <span>Console output will appear here</span>
+      </div>
+    }
+  </div>
+</div>
