@@ -1,2 +1,5 @@
-
-<ngx-monaco-editor [options]="editorOptions" [formControl]="editorControl"></ngx-monaco-editor>
+<ngx-monaco-editor
+  [options]="editorOptions"
+  [formControl]="editorControl"
+  (onInit)="onInit($event)">
+</ngx-monaco-editor>

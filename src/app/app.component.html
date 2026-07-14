@@ -1,22 +1,45 @@
-<main>
-  <div class="container">
-    <div class="row">
-      <div class="col text-center">
-        <h1>{{ title }}</h1>
+<main class="app-layout">
+  <header class="toolbar">
+    <div class="toolbar-left">
+      <span class="toolbar-brand">
+        <i class="fa-solid fa-code"></i> {{ title }}
+      </span>
+    </div>
+    <div class="toolbar-center">
+      <div class="toolbar-group">
+        <label class="toolbar-label"><i class="fa-solid fa-palette"></i></label>
+        <select class="toolbar-select" [value]="selectedTheme()" (change)="onThemeChange($any($event.target).value)">
+          @for (theme of themes; track theme.name) {
+            <option [value]="theme.name" [selected]="theme.name === selectedTheme()">{{ theme.label }}</option>
+          }
+        </select>
       </div>
     </div>
-    <div class="row height-90">
-      <div class="col-12 col-md-6">
-        <h2>Editor:</h2>
-        <form *ngIf="editorForm" [formGroup]="editorForm">
-          <app-editor formControlName="editorControl"></app-editor>
-        </form>
+    <div class="toolbar-right"></div>
+  </header>
+
+  <div class="editor-area" [formGroup]="editorForm">
+    <div class="panel panel-editor">
+      <div class="panel-header">
+        <span class="panel-title"><i class="fa-solid fa-file-code"></i> Editor</span>
       </div>
-      <div class="col-12 col-md-6">
-        <h2>Consola:</h2>
-        <form *ngIf="editorForm" [formGroup]="editorForm">
-          <app-console-view formControlName="consoleControl"></app-console-view>
-        </form>
+      <div class="panel-body">
+        <app-editor
+          formControlName="editorControl"
+          [theme]="selectedTheme()">
+        </app-editor>
+      </div>
+    </div>
+
+    <div class="panel panel-console">
+      <div class="panel-header">
+        <span class="panel-title"><i class="fa-solid fa-terminal"></i> Console</span>
+        <button class="btn-icon" title="Clear console" (click)="clearConsole()">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+      <div class="panel-body">
+        <app-console-view #consoleView formControlName="consoleControl"></app-console-view>
       </div>
     </div>
   </div>
