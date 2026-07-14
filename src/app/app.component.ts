@@ -1,40 +1,52 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs';
+import { ThemeService } from './shared/services/theme.service';
+import { ConsoleViewComponent } from './shared/console-view/console-view.component';
 
 @Component({
+  standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
-  title = 'Mini code editor';
+  @ViewChild('consoleView') consoleView!: ConsoleViewComponent;
 
-  editorOptions = {
-    theme: 'vs-dark',
-    language: 'typescript',
-  };
+  private formBuilder = inject(FormBuilder);
+  readonly themeService = inject(ThemeService);
 
-  code:any = `function x() {\n  console.log("Epale vale!");\n}\nx();`
+  title = 'Mini Code Editor';
 
-  editorForm: FormGroup;
+  selectedTheme = signal(this.themeService.currentTheme());
+  themes = this.themeService.themes;
 
-  constructor(
-    private formBuilder: FormBuilder,
-  ) {}
+  editorForm: FormGroup = this.formBuilder.group({
+    editorControl: this.formBuilder.control(this.defaultCode),
+    consoleControl: this.formBuilder.control(this.defaultCode)
+  });
 
-  ngOnInit(): void {
-    this.editorForm = this.formBuilder.group({
-      editorControl: this.formBuilder.control(this.code),
-      consoleControl: this.formBuilder.control(this.code)
-    });
-
-    this.editorForm.get('editorControl')?.valueChanges.pipe(debounceTime(1000)).subscribe( (code) => {
-      this.editorForm.get('consoleControl')?.patchValue(code);
-    });
-
+  constructor() {
+    const editorChanges = this.editorForm.get('editorControl')?.valueChanges;
+    if (editorChanges) {
+      editorChanges.pipe(debounceTime(1000)).subscribe((code) => {
+        this.editorForm.get('consoleControl')?.patchValue(code);
+      });
+    }
   }
 
-}
+  onThemeChange(themeName: string): void {
+    this.selectedTheme.set(themeName);
+    this.themeService.setTheme(themeName);
+  }
 
+  clearConsole(): void {
+    this.consoleView?.clearConsole();
+  }
+
+  private get defaultCode(): string {
+    return `function greet(name: string) {\n  console.log(\`Hello, \${name}!\`);\n  console.warn("This is a warning");\n  console.info("Some info here");\n  console.error("Oops, something went wrong!");\n  console.table([{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }]);\n  console.time("timer");\n  for (let i = 0; i < 1000; i++) {}\n  console.timeEnd("timer");\n}\n\ngreet("World");`;
+  }
+}
