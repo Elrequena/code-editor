@@ -1,8 +1,8 @@
-import { Component, ElementRef, ViewChild, forwardRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, forwardRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import * as ts from 'typescript';
-import { ConsoleEntry, ConsoleMethod, SerializedArg } from '../models/console-entry.model';
-import { ConsoleSerializerService } from '../services/console-serializer.service';
+import { ConsoleEntry, ConsoleMethod, SerializedArg } from '../../core/models/console-entry.model';
+import { ConsoleSerializerService } from '../../core/services/console-serializer.service';
 
 @Component({
   standalone: false,

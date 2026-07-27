@@ -1,3 +1,39 @@
+@property --as-gutter-background-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #eeeeee;
+}
+
+@property --as-gutter-icon-horizontal {
+  syntax: '<url>';
+  inherits: true;
+  initial-value: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+}
+
+@property --as-gutter-icon-vertical {
+  syntax: '<url>';
+  inherits: true;
+  initial-value: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFCAMAAABl/6zIAAAABlBMVEUAAADMzMzIT8AyAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYGRkwIMJSeMHlBkOABP7AEGzSuPKAAAAAElFTkSuQmCC');
+}
+
+@property --as-gutter-icon-disabled {
+  syntax: '<url>';
+  inherits: true;
+  initial-value: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+}
+
+@property --as-transition-duration {
+  syntax: '<time>';
+  inherits: true;
+  initial-value: 0.3s;
+}
+
+@property --as-gutter-disabled-cursor {
+  syntax: '*';
+  inherits: true;
+  initial-value: default;
+}
+
 // ========== CSS Variables per Theme ==========
 
 :root {
@@ -8,6 +44,7 @@
   --accent: #00D4FF;
   --border: #333;
   --toolbar-bg: #2d2d2d;
+  --as-gutter-background-color: #333;
 }
 
 // Light Standard
@@ -19,6 +56,7 @@
   --accent: #007ACC;
   --border: #E0E0E0;
   --toolbar-bg: #F0F0F0;
+  --as-gutter-background-color: #E0E0E0;
 }
 
 // Light Cloud
@@ -30,6 +68,7 @@
   --accent: #7C3AED;
   --border: #E2E8F0;
   --toolbar-bg: #F1F5F9;
+  --as-gutter-background-color: #CBD5E1;
 }
 
 // Dark Retro Console
@@ -41,6 +80,7 @@
   --accent: #33FF33;
   --border: #1A331A;
   --toolbar-bg: #0D1A0D;
+  --as-gutter-background-color: #1A331A;
 }
 
 // Dark Neon Blue
@@ -52,6 +92,7 @@
   --accent: #00D4FF;
   --border: #1E3A5F;
   --toolbar-bg: #0F1A2E;
+  --as-gutter-background-color: #1E3A5F;
 }
 
 // Dark Obsidian
@@ -63,6 +104,7 @@
   --accent: #F472B6;
   --border: #3F3F46;
   --toolbar-bg: #27272A;
+  --as-gutter-background-color: #3F3F46;
 }
 
 // ========== Global Styles ==========

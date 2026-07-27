@@ -1,9 +1,10 @@
 import { Component, inject, signal, ViewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs';
-import { ThemeService } from './shared/services/theme.service';
+import { ThemeService } from './core/services/theme.service';
+import { ScreenSizeService } from './core/services/screen-size.service';
 import { ConsoleViewComponent } from './shared/console-view/console-view.component';
+import { SplitGutterInteractionEvent } from 'angular-split';
 
 @Component({
   standalone: false,
@@ -17,11 +18,14 @@ export class AppComponent {
 
   private formBuilder = inject(FormBuilder);
   readonly themeService = inject(ThemeService);
+  readonly screenSize = inject(ScreenSizeService);
 
   title = 'Mini Code Editor';
 
   selectedTheme = signal(this.themeService.currentTheme());
   themes = this.themeService.themes;
+
+  editorSize = signal<number>(50);
 
   editorForm: FormGroup = this.formBuilder.group({
     editorControl: this.formBuilder.control(this.defaultCode),
@@ -40,6 +44,13 @@ export class AppComponent {
   onThemeChange(themeName: string): void {
     this.selectedTheme.set(themeName);
     this.themeService.setTheme(themeName);
+  }
+
+  onSplitDragEnd(event: SplitGutterInteractionEvent): void {
+    const size = event.sizes[0];
+    if (typeof size === 'number') {
+      this.editorSize.set(size);
+    }
   }
 
   clearConsole(): void {

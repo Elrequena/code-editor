@@ -1,25 +1,26 @@
 <main class="app-layout">
   <header class="toolbar">
-    <div class="toolbar-left">
-      <span class="toolbar-brand">
-        <i class="fa-solid fa-code"></i> {{ title }}
-      </span>
+    <span class="toolbar-brand">
+      <i class="fa-solid fa-code"></i> {{ title }}
+    </span>
+    <div class="toolbar-group">
+      <label class="toolbar-label"><i class="fa-solid fa-palette"></i></label>
+      <select class="toolbar-select" [value]="selectedTheme()" (change)="onThemeChange($any($event.target).value)">
+        @for (theme of themes; track theme.name) {
+          <option [value]="theme.name" [selected]="theme.name === selectedTheme()">{{ theme.label }}</option>
+        }
+      </select>
     </div>
-    <div class="toolbar-center">
-      <div class="toolbar-group">
-        <label class="toolbar-label"><i class="fa-solid fa-palette"></i></label>
-        <select class="toolbar-select" [value]="selectedTheme()" (change)="onThemeChange($any($event.target).value)">
-          @for (theme of themes; track theme.name) {
-            <option [value]="theme.name" [selected]="theme.name === selectedTheme()">{{ theme.label }}</option>
-          }
-        </select>
-      </div>
-    </div>
-    <div class="toolbar-right"></div>
   </header>
 
-  <div class="editor-area" [formGroup]="editorForm">
-    <div class="panel panel-editor">
+  <as-split
+    class="editor-area"
+    [direction]="screenSize.isMobile() ? 'vertical' : 'horizontal'"
+    [gutterSize]="6"
+    (dragEnd)="onSplitDragEnd($event)"
+    [formGroup]="editorForm">
+
+    <as-split-area class="panel panel-editor" [size]="editorSize()">
       <div class="panel-header">
         <span class="panel-title"><i class="fa-solid fa-file-code"></i> Editor</span>
       </div>
@@ -29,9 +30,9 @@
           [theme]="selectedTheme()">
         </app-editor>
       </div>
-    </div>
+    </as-split-area>
 
-    <div class="panel panel-console">
+    <as-split-area class="panel panel-console" [size]="100 - editorSize()">
       <div class="panel-header">
         <span class="panel-title"><i class="fa-solid fa-terminal"></i> Console</span>
         <button class="btn-icon" title="Clear console" (click)="clearConsole()">
@@ -41,8 +42,8 @@
       <div class="panel-body">
         <app-console-view #consoleView formControlName="consoleControl"></app-console-view>
       </div>
-    </div>
-  </div>
+    </as-split-area>
+
+  </as-split>
 </main>
 
-<router-outlet></router-outlet>

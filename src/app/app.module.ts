@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MonacoEditorModule, NGX_MONACO_EDITOR_CONFIG, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+import { AngularSplitModule } from 'angular-split';
 import { ConsoleViewComponent } from './shared/console-view/console-view.component';
 import { EditorComponent } from './shared/editor/editor.component';
-import { ThemeService } from './shared/services/theme.service';
+import { ThemeService } from './core/services/theme.service';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: './assets/monaco/min/vs',
@@ -26,10 +26,9 @@ const monacoConfig: NgxMonacoEditorConfig = {
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
-    FormsModule,
     ReactiveFormsModule,
-    MonacoEditorModule.forRoot(monacoConfig)
+    MonacoEditorModule.forRoot(monacoConfig),
+    AngularSplitModule
   ],
   providers: [
     {

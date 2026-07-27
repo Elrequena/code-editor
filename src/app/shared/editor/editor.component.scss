@@ -2,6 +2,7 @@
   display: block;
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 ngx-monaco-editor,
@@ -12,8 +13,11 @@ ngx-monaco-editor,
 }
 
 ::ng-deep .monaco-editor,
-::ng-deep .monaco-editor .overflow-guard,
-::ng-deep .monaco-editor .editor-scrollable {
+::ng-deep .monaco-editor .overflow-guard {
   height: 100% !important;
   width: 100% !important;
+}
+
+::ng-deep .monaco-editor .editor-scrollable {
+  height: 100% !important;
 }
